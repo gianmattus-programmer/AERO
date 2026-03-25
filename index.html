@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crew College | Academy of Aviation Excellence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bronze: #b36b3f;
+            --bronze-light: #d4956a;
+            --bronze-dark: #8e522d;
+            --space-black: #05070a;
+            --fb-color: #1877F2;
+            --ig-color: #E4405F;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--space-black);
+            color: white;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4, .font-heading { font-family: 'Montserrat', sans-serif; }
+
+        /* Reading Progress */
+        #scrollProgress {
+            position: fixed; top: 0; left: 0; width: 0%; height: 3px;
+            background: linear-gradient(to right, var(--bronze), var(--bronze-light));
+            z-index: 200; transition: width 0.1s;
+        }
+
+        /* Background Canvas */
+        #three-canvas {
+            position: fixed; top: 0; left: 0; z-index: -1;
+            pointer-events: none; opacity: 0; transition: opacity 1.5s ease;
+            display: none;
+        }
+        @media (min-width: 1024px) {
+            #three-canvas { display: block; }
+        }
+
+        .text-gradient {
+            background: linear-gradient(to right, #ffffff, var(--bronze-light), var(--bronze));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Hero Ken Burns Effect */
+        .hero-bg {
+            background-image: url('sala.jpeg');
+            background-size: cover;
+            background-position: center;
+            animation: kenBurns 25s infinite alternate;
+        }
+
+        @keyframes kenBurns {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .hero-overlay {
+            background: linear-gradient(to bottom, rgba(5, 7, 10, 0.2) 0%, rgba(5, 7, 10, 0.95) 100%);
+        }
+
+        /* Navbar Centrada Estilo Cápsula */
+        #navbar-container {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-capsule {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 0.5rem 1.5rem;
+        }
+
+        /* Custom Select Styles */
+        .custom-select-trigger {
+            cursor: pointer; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.25rem; border-radius: 1rem;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.3s ease;
+        }
+        .custom-select-trigger:hover { border-color: var(--bronze); }
+        .custom-select-options {
+            position: absolute; width: 100%; bottom: calc(100% + 10px); left: 0;
+            background: #111; border: 1px solid var(--bronze);
+            border-radius: 1rem; overflow: hidden; z-index: 50;
+            opacity: 0; visibility: hidden; transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .custom-select-options.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        .option-item {
+            padding: 1rem 1.25rem; cursor: pointer; transition: all 0.2s;
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .option-item:last-child { border-bottom: none; }
+        .option-item:hover { background: var(--bronze); color: white; }
+
+        /* Premium Buttons - Corregido Hover Blanco */
+        .btn-bronze {
+            background: var(--bronze);
+            color: white;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 20px -10px rgba(179, 107, 63, 0.5);
+        }
+        .btn-bronze:hover {
+            background: var(--bronze-light);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px -10px rgba(179, 107, 63, 0.6);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.4s ease;
+        }
+        .btn-outline:hover {
+            border-color: var(--bronze);
+            color: var(--bronze);
+            background: rgba(179, 107, 63, 0.05);
+        }
+
+        /* Shine Effect */
+        .btn-shine { position: relative; overflow: hidden; }
+        .btn-shine::after {
+            content: ''; position: absolute; top: -50%; left: -100%; width: 50%; height: 200%;
+            background: rgba(255,255,255,0.1); transform: rotate(25deg); transition: 0.6s;
+        }
+        .btn-shine:hover::after { left: 150%; }
+
+        /* Logos Official Glow */
+        .social-link i { transition: all 0.3s ease; }
+        .social-fb:hover { color: var(--fb-color); filter: drop-shadow(0 0 10px var(--fb-color)); }
+        .social-ig:hover { color: #f09433; filter: drop-shadow(0 0 10px #dc2743); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--space-black); }
+        ::-webkit-scrollbar-thumb { background: var(--bronze); border-radius: 10px; }
+
+        .footer-link {
+        text-decoration: none;
+        color: inherit; /* Mantiene el color del texto original inicialmente */
+        transition: color 0.3s ease; /* Suaviza el cambio de color */
+        }
+
+        .footer-link:hover {
+        color: #CC5500; /* Naranja oscuro */
+        }
+                :root {
+            --bronze: #b36b3f;
+            --bronze-light: #d4956a;
+            --space-black: #05070a;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--space-black);
+            color: white;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h2, h3 { font-family: 'Montserrat', sans-serif; }
+
+        /* Carousel Premium */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 65vh;
+            overflow: hidden;
+            border-radius: 3rem 3rem 0 0;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+            height: 100%;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.6) contrast(1.1);
+        }
+
+        .carousel-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 40%, var(--space-black) 100%);
+        }
+
+        /* Progress Indicator */
+        .progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            z-index: 30;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--bronze), var(--bronze-light));
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* Map UI */
+        .map-section {
+            background: var(--space-black);
+            padding: 3rem 2rem 5rem 2rem;
+            border-radius: 0 0 3rem 3rem;
+            border: 1px solid rgba(255,255,255,0.03);
+            border-top: none;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(179, 107, 63, 0.2);
+            padding: 2.5rem;
+            border-radius: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Efecto Google Maps Dark */
+        .google-map-iframe {
+            filter: grayscale(1) invert(0.9) contrast(1.2) opacity(0.8);
+            border-radius: 2rem;
+            transition: all 0.5s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        
+        .google-map-iframe:hover {
+            filter: grayscale(0.2) invert(0) contrast(1) opacity(1);
+        }
+
+        .btn-maps {
+            background: var(--bronze);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-maps:hover {
+            background: var(--bronze-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(179, 107, 63, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .carousel-container { height: 45vh; }
+            .map-section { padding: 2rem 1rem; }
+        }
+    </style>
+</head>
+<body class="selection:bg-bronze selection:text-white">
+
+    <div id="scrollProgress"></div>
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Navigation Centrada -->
+    <nav class="fixed w-full z-[100] py-6" id="navbar">
+        <div class="container mx-auto px-6 flex justify-center">
+            <div id="navbar-container" class="flex items-center gap-8 md:gap-12 nav-capsule">
+                <a href="#inicio" class="flex-shrink-0">
+                    <img src="crewlogo.png" alt="Crew College" class="h-8 md:h-10 hover:scale-105 transition-transform">
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-8 text-[9px] font-bold tracking-[0.3em] uppercase">
+                    <a href="#nosotros" class="hover:text-bronze transition">Identidad</a>
+                    <a href="#programas" class="hover:text-bronze transition">Programas</a>
+                    <a href="#malla" class="hover:text-bronze transition">Malla</a>
+                </div>
+
+                <a href="#contacto" class="btn-bronze btn-shine px-6 py-2 rounded-full font-black tracking-widest text-[9px] uppercase">
+                    Postular
+                </a>
+
+                <button class="md:hidden text-white" id="mobileMenuOpen">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-3xl flex flex-col p-12 lg:hidden translate-x-full transition-transform duration-500">
+        <div class="flex justify-between items-center mb-16">
+            <img src="crewlogo.png" alt="Logo" class="h-10 brightness-200">
+            <button id="mobileMenuClose"><i data-lucide="x" class="w-10 h-10 text-bronze"></i></button>
+        </div>
+        <div class="flex flex-col space-y-8 text-2xl font-black uppercase tracking-tighter text-center">
+            <a href="#inicio" class="mobile-link">Home</a>
+            <a href="#nosotros" class="mobile-link">Identidad</a>
+            <a href="#programas" class="mobile-link">Programas</a>
+            <a href="#malla" class="mobile-link">Malla</a>
+            <a href="#contacto" class="text-bronze mobile-link">Contacto</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <header id="inicio" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0 overflow-hidden">
+            <div class="absolute inset-0 hero-bg"></div>
+            <div class="absolute inset-0 hero-overlay"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 text-center z-10 pt-20">
+            <div data-aos="zoom-out" data-aos-duration="1500">
+                <span class="inline-block border border-bronze/30 px-5 py-1.5 rounded-full text-[10px] font-black tracking-[0.4em] uppercase mb-8 bg-black/40 backdrop-blur-md text-bronze">
+                    No somos una academia tradicional
+                </span>
+                <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-none tracking-tighter mb-8 uppercase drop-shadow-md">
+                    ELEVAMOS TU <br>
+                    <span class="text-gradient italic">IDENTIDAD PROFESIONAL</span>
+                </h1>
+                <p class="text-[10px] md:text-xs font-bold tracking-[0.5em] uppercase text-white/80 mb-12 max-w-3xl mx-auto leading-relaxed">
+                    “Especialistas en formar y entrenar a futuros tripulantes de cabina”
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-6">
+                    <a href="#contacto" class="btn-bronze btn-shine w-full sm:w-auto px-14 py-5 rounded-2xl font-black text-xs tracking-[0.3em]">
+                        INICIAR ADMISIÓN
+                    </a>
+                    <a href="#nosotros" class="btn-outline w-full sm:w-auto px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em]">
+                        Ver Identidad
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Identidad & Propósito -->
+    <section id="nosotros" class="py-24 md:py-32 relative overflow-hidden bg-space-black">
+        <div class="container mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+                <div data-aos="fade-right">
+                    <h2 class="text-bronze font-bold tracking-[0.4em] text-[10px] mb-6 uppercase">Concepto CREW</h2>
+                    <h3 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-8 leading-tight uppercase tracking-tighter">
+                        Donde la técnica se <br> integra con la <span class="italic text-bronze-light text-gradient">pasión.</span>
+                    </h3>
+                    <p class="text-base text-white/50 mb-10 leading-relaxed font-light">
+                        Crew College nace para quienes buscan una experiencia formativa real. CREW representa el trabajo en equipo, liderazgo compartido y confianza mutua. Forjamos el criterio y la actitud necesaria para entornos reales.
+                    </p>
+                    
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div class="glass-panel p-8 rounded-[2rem] border-l-4 border-l-bronze">
+                            <h4 class="font-black text-[10px] uppercase tracking-[0.3em] mb-3 text-bronze">Propósito</h4>
+                            <p class="text-[11px] text-white/50 leading-relaxed">Formar personas con mentalidad, criterio y presencia profesional para destacar en la aviación.</p>
+                        </div>
+                        <div class="glass-panel p-8 rounded-[2rem] border-l-4 border-l-bronze">
+                            <h4 class="font-black text-[10px] uppercase tracking-[0.3em] mb-3 text-bronze">Visión</h4>
+                            <p class="text-[11px] text-white/50 leading-relaxed">Ser el punto de partida de quienes no solo buscan encajar en la industria, sino elevarla.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 flex flex-wrap gap-4">
+                        <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/10 px-4 py-2 rounded-full italic"><i data-lucide="shield-check" class="w-4 h-4 text-bronze"></i> Disciplina</div>
+                        <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/10 px-4 py-2 rounded-full italic"><i data-lucide="zap" class="w-4 h-4 text-bronze"></i> Compromiso</div>
+                        <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/10 px-4 py-2 rounded-full italic"><i data-lucide="users" class="w-4 h-4 text-bronze"></i> Trabajo en Equipo</div>
+                    </div>
+                </div>
+                
+                <div class="relative" data-aos="zoom-in">
+                    <div class="glass-panel p-10 md:p-16 rounded-[4rem] border-bronze/20 shadow-2xl relative overflow-hidden">
+                        <div class="absolute -top-32 -right-32 w-80 h-80 bg-bronze/10 rounded-full blur-[100px]"></div>
+                        <h4 class="text-bronze font-black text-xs uppercase mb-10 italic tracking-[0.4em]">Visual Identity</h4>
+                        <div class="space-y-10 relative z-10">
+                            <div class="flex items-start gap-8">
+                                <div class="w-12 h-12 rounded-2xl bg-bronze/10 flex items-center justify-center shrink-0 border border-bronze/20 italic font-black text-bronze">A</div>
+                                <div><p class="text-[11px] font-black uppercase tracking-widest mb-1">Aeronave en Ascenso</p><p class="text-[10px] text-white/30 uppercase leading-relaxed">Metas alcanzadas y evolución constante en el proceso formativo.</p></div>
+                            </div>
+                            <div class="flex items-start gap-8">
+                                <div class="w-12 h-12 rounded-2xl bg-bronze/10 flex items-center justify-center shrink-0 border border-bronze/20 italic font-black text-bronze">L</div>
+                                <div><p class="text-[11px] font-black uppercase tracking-widest mb-1">Líneas Curvas</p><p class="text-[10px] text-white/30 uppercase leading-relaxed">Trayectoria, guía y acompañamiento personalizado.</p></div>
+                            </div>
+                            <div class="flex items-start gap-8">
+                                <div class="w-12 h-12 rounded-2xl bg-bronze/10 flex items-center justify-center shrink-0 border border-bronze/20 italic font-black text-bronze">C</div>
+                                <div><p class="text-[11px] font-black uppercase tracking-widest mb-1">Cercanía Humana</p><p class="text-[10px] text-white/30 uppercase leading-relaxed">Equilibrio perfecto entre tecnología y profesionalismo humano.</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programas y Horarios -->
+    <section id="programas" class="py-24 md:py-32 bg-white text-black rounded-t-[5rem] md:rounded-t-[15rem]">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-24" data-aos="fade-up">
+                <h2 class="text-slate-300 font-bold tracking-[0.4em] text-[10px] mb-4 uppercase">Academic Schedules</h2>
+                <h3 class="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.8]">Modalidades <br><span class="text-bronze italic">& Horarios</span></h3>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                <!-- Interdiario -->
+                <div class="p-8 sm:p-12 md:p-20 bg-slate-50 rounded-[4rem] border border-slate-200 group hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] transition-all" data-aos="fade-up">
+                    <div class="flex justify-between items-center mb-12">
+                        <i data-lucide="calendar" class="text-bronze w-8 sm:w-12 h-8 sm:h-12"></i>
+                        <span class="text-4xl sm:text-6xl font-black opacity-[0.05] tracking-tighter">06m</span>
+                    </div>
+                    <h4 class="text-3xl sm:text-4xl font-black mb-4 uppercase tracking-tighter italic">Interdiario</h4>
+                    <p class="text-bronze font-bold text-[10px] tracking-[0.4em] mb-12 uppercase italic">6 Meses de Especialización Presencial</p>
+                    <div class="space-y-6 border-t border-slate-200 pt-10">
+                        <div class="flex justify-between items-center group/item hover:translate-x-2 transition-transform cursor-default">
+                            <span class="text-[10px] font-black uppercase text-slate-400">Turno Mañana</span> <span class="font-mono font-bold text-lg">09:00 - 11:00 AM</span>
+                        </div>
+                        <div class="flex justify-between items-center group/item hover:translate-x-2 transition-transform cursor-default">
+                            <span class="text-[10px] font-black uppercase text-slate-400">Turno Mediodía</span> <span class="font-mono font-bold text-lg">11:15 - 13:15 PM</span>
+                        </div>
+                        <div class="flex justify-between items-center group/item hover:translate-x-2 transition-transform cursor-default">
+                            <span class="text-[10px] font-black uppercase text-slate-400">Turno Tarde</span> <span class="font-mono font-bold text-lg">16:00 - 18:00 PM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sabatino -->
+                <div class="p-8 sm:p-12 md:p-20 bg-slate-900 rounded-[4rem] text-white shadow-3xl group relative overflow-hidden" data-aos="fade-up" data-aos-delay="200">
+                    <div class="absolute inset-0 bg-gradient-to-br from-bronze/10 to-transparent pointer-events-none"></div>
+                    <div class="flex justify-between items-center mb-12">
+                        <i data-lucide="clock" class="text-bronze w-8 sm:w-12 h-8 sm:h-12"></i>
+                        <span class="text-4xl sm:text-6xl font-black opacity-[0.1] tracking-tighter">08m</span>
+                    </div>
+                    <h4 class="text-3xl sm:text-4xl font-black mb-4 uppercase tracking-tighter italic">Sabatinos</h4>
+                    <p class="text-bronze font-bold text-[10px] tracking-[0.4em] mb-12 uppercase italic">8 Meses de Especialización Presencial</p>
+                    <div class="space-y-6 border-t border-white/10 pt-10">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-black uppercase text-white/40 tracking-widest">Horario Único</span> <span class="font-mono font-bold text-lg text-bronze">10:00 - 12:30 PM</span>
+                        </div>
+                        <div class="mt-8 p-6 bg-white/5 rounded-3xl border border-white/5 text-center">
+                            <p class="text-[9px] font-bold uppercase tracking-[0.3em] leading-relaxed italic text-white/50">Atención personalizada con cupos estrictamente limitados para máxima calidad educativa.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Malla Curricular -->
+    <section id="malla" class="py-24 md:py-32 bg-slate-50 text-black">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center mb-20">
+                <h2 class="text-bronze font-bold tracking-[0.4em] text-[10px] mb-4 uppercase">Programa DGAC - MTC</h2>
+                <h3 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-6 uppercase tracking-tighter">Malla Curricular <span class="italic text-slate-400">Elite</span></h3>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">Contenido oficial estructurado para el desarrollo de competencias críticas en aeronáutica.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <!-- Subjects -->
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Historia de la Aviación</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Autoridad del Piloto</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Derecho Aeronáutico</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7A7.1 7.1 0 1 1 5 8c0 .3 0 .6.1.9l-1.8.6"/><path d="M9.6 4.6A9 9 0 1 1 11 20l.4-1.8"/><path d="M16.4 19.4a5 5 0 1 1-9-3"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Reglamentos del Aire</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Meteorología Básica</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Mercancías Peligrosas</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Actuación Humana</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Aerodinámica</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Medicina Aeroespacial</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Primeros Auxilios</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Factores Humanos / SMS</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">AVSEC - Interferencia</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="10" x="2" y="10" rx="2"/><path d="M22 14a2 2 0 0 0-2-2h-2"/><rect width="4" height="4" x="6" y="13" rx="1"/><path d="M14 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Airbus FAM320 / B737</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Equipos Emergencia & Fuego</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Supervivencia</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Servicio a Bordo & Protocolo</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 8-9.04 9.06a2.82 2.82 0 1 0 3.98 3.98L16 12"/><circle cx="17" cy="7" r="5"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Comunicación Aerocomercial</span>
+                </div>
+
+                <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Marca Personal & Coaching</span>
+                </div>
+
+            </div>
+
+            <!-- Beneficios y Requisitos -->
+            <div class="mt-24 grid lg:grid-cols-2 gap-8">
+                <div class="p-10 md:p-14 bg-white rounded-[3rem] border border-slate-200 shadow-xl" data-aos="fade-up">
+                    <h4 class="text-2xl font-black mb-8 uppercase italic border-b-2 border-bronze pb-4 inline-block">Beneficios Elite</h4>
+                    <ul class="space-y-6">
+                        <li class="flex items-start gap-4">
+                            <i data-lucide="check-circle-2" class="text-green-500 flex-shrink-0"></i>
+                            <div><p class="text-xs font-black uppercase tracking-widest">Sin gasto de uniforme</p><p class="text-xs text-slate-400">Te brindamos las facilidades para que inicies tu formación sin costos adicionales.</p></div>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <i data-lucide="check-circle-2" class="text-green-500 flex-shrink-0"></i>
+                            <div><p class="text-xs font-black uppercase tracking-widest">Matrícula Completa</p><p class="text-xs text-slate-400">Incluye todo tu material de lectura digitalizado y acceso a recursos.</p></div>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <i data-lucide="check-circle-2" class="text-green-500 flex-shrink-0"></i>
+                            <div><p class="text-xs font-black uppercase tracking-widest">Certificación Especializada</p><p class="text-xs text-slate-400">A nombre de CREW COLLEGE al finalizar satisfactoriamente el curso.</p></div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="p-10 md:p-14 bg-slate-900 rounded-[3rem] text-white shadow-2xl" data-aos="fade-up" data-aos-delay="200">
+                    <h4 class="text-2xl font-black mb-8 uppercase italic border-b-2 border-bronze pb-4 inline-block">Admisión</h4>
+                    <div class="space-y-6">
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-bronze mb-2">Requisitos de Matrícula</p>
+                            <ul class="text-xs space-y-2 text-white/60">
+                                <li>• Copia de DNI o Carnet de Extranjería.</li>
+                                <li>• Edad: Desde los 16 años en adelante.</li>
+                                <li>• Modalidad 100% Presencial.</li>
+                            </ul>
+                        </div>
+                        <div class="pt-6 border-t border-white/10">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-bronze mb-4">Inversión (Pagos)</p>
+                            <div class="grid grid-cols-3 gap-4 text-center">
+                                <div class="p-3 bg-white/5 rounded-xl"><p class="text-[8px] uppercase font-bold text-white/40">Matrícula</p><p class="text-[9px] font-black">Único</p></div>
+                                <div class="p-3 bg-white/5 rounded-xl"><p class="text-[8px] uppercase font-bold text-white/40">Mensualidad</p><p class="text-[9px] font-black">Cuota</p></div>
+                                <div class="p-3 bg-white/5 rounded-xl"><p class="text-[8px] uppercase font-bold text-white/40">Seguro</p><p class="text-[9px] font-black">Accidental</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="max-w-7xl mx-auto">
+        <!-- Header de Ubicación -->
+        <div class="mb-12 text-center" data-aos="fade-down">
+        </div>
+
+        <!-- Carrusel de Imágenes de la Academia -->
+        <div class="carousel-container">
+            <div class="carousel-track" id="carouselTrack">
+                <!-- Slide 1: Fachada / Recepción -->
+                <div class="carousel-slide">
+                    <img src="sala.jpeg" alt="Sede Miraflores">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Sede Miraflores</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Infraestructura de Élite</h3>
+                    </div>
+                </div>
+                <!-- Slide 2: Aulas -->
+                <div class="carousel-slide">
+                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1600" alt="Aulas Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Entrenamiento</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Aulas Especializadas</h3>
+                    </div>
+                </div>
+                <!-- Slide 3: Prácticas -->
+                <div class="carousel-slide">
+                    <img src="mantenimiento-aeronautico.jpg" alt="Simuladores">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Experiencia Real</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Entorno Aeronáutico</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navegación -->
+            <div class="absolute inset-y-0 left-0 w-24 flex items-center justify-center z-30">
+                <button onclick="prevSlide()" class="p-4 text-white/30 hover:text-bronze transition-colors">
+                    <i data-lucide="arrow-left" class="w-8 h-8"></i>
+                </button>
+            </div>
+            <div class="absolute inset-y-0 right-0 w-24 flex items-center justify-center z-30">
+                <button onclick="nextSlide()" class="p-4 text-white/30 hover:text-bronze transition-colors">
+                    <i data-lucide="arrow-right" class="w-8 h-8"></i>
+                </button>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <!-- Sección Mapa Google Maps Interactivos -->
+        <div class="map-section">
+            <div class="grid lg:grid-cols-5 gap-8 items-stretch">
+                <!-- Card de Información -->
+                <div class="lg:col-span-2">
+                    <div class="info-card">
+                        <h3 class="text-2xl font-black uppercase italic tracking-tighter mb-8 text-bronze">Hub Miraflores</h3>
+                        
+                        <div class="space-y-8 mb-10">
+                            <div class="flex items-start gap-5">
+                                <div class="w-10 h-10 rounded-xl bg-bronze/10 border border-bronze/20 flex items-center justify-center shrink-0">
+                                    <i data-lucide="map-pin" class="text-bronze w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] font-black uppercase text-white/30 tracking-widest mb-1">Dirección Exacta</p>
+                                    <p class="text-xs font-bold leading-relaxed">
+                                        Av. Alfredo Benavides 2315, <br>
+                                        Frente al Colegio Juana Alarco de Dammert. <br>
+                                        Miraflores, Lima - Perú.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-5">
+                                <div class="w-10 h-10 rounded-xl bg-bronze/10 border border-bronze/20 flex items-center justify-center shrink-0">
+                                    <i data-lucide="navigation-2" class="text-bronze w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] font-black uppercase text-white/30 tracking-widest mb-1">Referencia Hub</p>
+                                    <p class="text-xs font-bold leading-relaxed">Zona de fácil acceso • Cercano al Ovalo Higuereta</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="https://maps.app.goo.gl/SGrNnFGQwHjMfjBA9" target="_blank" class="btn-maps w-full py-5 rounded-2xl flex items-center justify-center gap-4 text-[10px] font-black uppercase tracking-[0.3em] text-white">
+                            Explorar en Google Maps <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Google Maps iFrame Interactivos -->
+                <div class="lg:col-span-3 min-h-[450px] relative">
+                    <iframe 
+                        class="google-map-iframe w-full h-full shadow-2xl"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3900.754763428163!2d-77.0145!3d-12.1293!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c802611e4f45%3A0xc66511a030060000!2sAv.%20Alfredo%20Benavides%202315%2C%20Miraflores%2015048!5e0!3m2!1ses!2spe!4v1716580000000!5m2!1ses!2spe" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                    <!-- Badge Flotante sobre el mapa -->
+                    <div class="absolute top-6 right-6 bg-white text-black px-4 py-2 rounded-lg font-black text-[9px] uppercase tracking-widest shadow-xl flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Sede Operativa
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Formulario de Postulación Premium -->
+    <section id="contacto" class="py-24 relative overflow-hidden bg-space-black">
+        <div class="container mx-auto px-6 max-w-4xl relative z-10">
+            <div class="glass-panel p-8 sm:p-12 md:p-20 rounded-[4rem] shadow-2xl border-bronze/30 shadow-bronze/10" data-aos="zoom-in">
+                <div class="text-center mb-16">
+                    <h3 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 uppercase tracking-tighter italic leading-none">Inicia tu <span class="text-bronze">Carrera</span></h3>
+                    <p class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.5em] text-white/30 italic">Solicita tu cita de ingreso personalizada</p>
+                </div>
+                
+                <form class="space-y-6 sm:space-y-8">
+                    <div class="grid md:grid-cols-2 gap-4 sm:gap-8">
+                        <div class="space-y-3">
+                            <label class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-bronze ml-4 italic">Postulante</label>
+                            <input type="text" placeholder="Nombre completo" class="w-full bg-white/5 border border-white/10 p-4 sm:p-5 rounded-2xl sm:rounded-3xl outline-none focus:border-bronze font-bold text-xs transition-all placeholder:text-white/20 uppercase tracking-widest">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-bronze ml-4 italic">WhatsApp</label>
+                            <input type="tel" placeholder="9XX XXX XXX" class="w-full bg-white/5 border border-white/10 p-4 sm:p-5 rounded-2xl sm:rounded-3xl outline-none focus:border-bronze font-bold text-xs transition-all placeholder:text-white/20 tracking-widest">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 relative">
+                        <label class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-bronze ml-4 italic">Modalidad de Interés</label>
+                        <div id="customSelectTrigger" class="custom-select-trigger group">
+                            <span id="selectedValueDisplay" class="text-white/40 tracking-widest uppercase">Elegir programa de estudios</span>
+                            <i data-lucide="chevron-down" class="text-bronze w-5 h-5 group-hover:translate-y-0.5 transition-transform"></i>
+                        </div>
+                        <div id="customOptions" class="custom-select-options">
+                            <div class="option-item" data-value="interdiario">Interdiario (6 Meses)</div>
+                            <div class="option-item" data-value="sabatino">Sabatino (8 Meses)</div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 sm:pt-8 text-center">
+                        <button type="button" class="btn-bronze btn-shine w-full sm:w-80 py-5 sm:py-6 rounded-2xl sm:rounded-3xl font-black text-xs uppercase tracking-[0.4em]">
+                            Solicitar Admisión
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ultimate Footer -->
+    <footer id="contacto" class="bg-black/50 pt-32 pb-12 border-t border-white/5 relative overflow-hidden bg-space-black">
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-bronze/10 rounded-full blur-[150px] -z-10 translate-x-1/2 -translate-y-1/2"></div>
+        
+        <div class="container mx-auto px-6">
+            <!-- Newsletter CTA -->
+            <div class="mb-24 flex flex-col lg:flex-row justify-between items-center gap-8 lg:gap-12" data-aos="fade-up">
+                <div class="max-w-xl text-center lg:text-left">
+                    <h4 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter mb-4">¡Prepárate para este <span class="text-bronze">nuevo viaje!</span></h4>
+                    <p class="text-white/40 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">Envíanos tus datos para agendar una cita de admisión personalizada.</p>
+                </div>
+                <div class="w-full lg:w-auto">
+                    <form class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                        <input type="text" placeholder="WhatsApp / Correo" class="bg-white/5 border border-white/10 px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-2xl w-full sm:w-80 focus:outline-none focus:border-bronze transition-all font-bold text-xs uppercase tracking-widest">
+                        <button type="button" class="btn-premium bg-bronze text-white px-8 sm:px-10 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-black text-xs uppercase tracking-widest whitespace-nowrap">Postular</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 lg:gap-16 mb-24">
+                <!-- Branding -->
+                <div class="col-span-1 sm:col-span-2 lg:col-span-1">
+                    <img src="crewlogo.png" alt="Crew Logo" class="h-12 sm:h-16 mb-6 sm:mb-8 brightness-200">
+                    <p class="text-white/40 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8 max-w-xs">
+                        Especialistas en formar y entrenar a futuros tripulantes de cabina con excelencia y mentalidad profesional.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.facebook.com/share/1Ay1tAGTMg/" target="_blank" 
+                        class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center hover:bg-bronze transition-all duration-300 group hover:-translate-y-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" 
+                                class="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+
+                        <a href="https://www.instagram.com/crew.college" target="_blank" 
+                        class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center hover:bg-bronze transition-all duration-300 group hover:-translate-y-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+                                <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div>
+                    <h5 class="font-black text-xs uppercase tracking-[0.4em] text-bronze mb-6 sm:mb-8">Navegación</h5>
+                    <ul class="space-y-3 sm:space-y-4 text-xs font-bold uppercase tracking-widest text-white/60">
+                        <li>
+                            <a href="#inicio" class="transition-colors duration-300 hover:text-[#CC5500]">Inicio</a>
+                        </li>
+                        <li>
+                            <a href="#nosotros" class="transition-colors duration-300 hover:text-[#CC5500]">Nosotros</a>
+                        </li>
+                        <li>
+                            <a href="#malla" class="transition-colors duration-300 hover:text-[#CC5500]">Malla Curricular</a>
+                        </li>
+                        <li>
+                            <a href="#contacto" class="transition-colors duration-300 hover:text-[#CC5500]">Inscripciones</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h5 class="font-black text-xs uppercase tracking-[0.4em] text-bronze mb-6 sm:mb-8">Base Miraflores</h5>
+                    <ul class="space-y-4 sm:space-y-6 text-xs font-bold uppercase tracking-widest">
+                        <li class="flex items-start gap-4 text-white/70 hover:text-[#CC5500] transition-colors duration-300 group">
+                            <div class="flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                                </svg>
+                            </div>
+                            <span class="pt-0.5 text-[10px]">Frente al Colegio Juana Alarco de Dammert, Lima-Perú.</span>
+                        </li>
+                        
+                        <li>
+                            <a href="tel:+51966113956" class="flex items-center gap-4 text-white/70 hover:text-[#CC5500] transition-colors duration-300 group">
+                                <div class="flex-shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                    </svg>
+                                </div>
+                                <span>966 113 956</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Legal / RUC -->
+                <div>
+                    <h5 class="font-black text-xs uppercase tracking-[0.4em] text-bronze mb-6 sm:mb-8">Legal</h5>
+                    <div class="p-5 sm:p-6 bg-white/5 rounded-2xl border border-white/10">
+                        <p class="text-[10px] font-black uppercase text-white/30 mb-2">Razón Social</p>
+                        <p class="text-xs font-bold mb-4">GRUPO SLUFRA EIRL</p>
+                        <p class="text-[10px] font-black uppercase text-white/30 mb-2">RUC</p>
+                        <p class="text-xs font-bold uppercase">20614109336</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Line -->
+            <div class="pt-8 sm:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.4em] sm:tracking-[0.5em] text-white/20">
+                <p>
+                &copy; 2026 Crew College. Diseñado & desarrollado por 
+                <a href="https://chahinos.com" class="footer-link" target="_blank">Chahinos Agency</a>
+                </p>
+                <div class="flex gap-6 sm:gap-12">
+                    <a href="pp.html" class="hover:text-white transition">Política de Privacidad</a>
+                    <a href="ts.html" class="hover:text-white transition">Términos de Servicio</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Pulse Button -->
+    <a href="https://wa.me/51966113956" target="_blank" class="fixed bottom-8 right-8 z-[150] group">
+        <div class="absolute inset-0 bg-[#25D366] rounded-full animate-ping opacity-25"></div>
+        
+        <div class="relative bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.432 5.628 1.433h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+        </div>
+    </a>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true, duration: 1000, easing: 'ease-out-quint' });
+        lucide.createIcons();
+
+        // --- Custom Select Logic ---
+        const trigger = document.getElementById('customSelectTrigger');
+        const options = document.getElementById('customOptions');
+        const display = document.getElementById('selectedValueDisplay');
+        const items = document.querySelectorAll('.option-item');
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            options.classList.toggle('active');
+        });
+
+        items.forEach(item => {
+            item.addEventListener('click', () => {
+                display.innerText = item.innerText;
+                display.style.color = "#ffffff";
+                options.classList.remove('active');
+            });
+        });
+
+        document.addEventListener('click', () => options.classList.remove('active'));
+
+        // --- Reading Progress ---
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("scrollProgress").style.width = scrolled + "%";
+        });
+
+        // --- THREE.JS Particles ---
+        let scene, camera, renderer, stars, starGeo;
+        const canvas = document.getElementById('three-canvas');
+        
+        function initThree() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+            camera.position.z = 1;
+            camera.rotation.x = Math.PI / 2;
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            starGeo = new THREE.BufferGeometry();
+            let points = [];
+            for (let i = 0; i < 9000; i++) {
+                let star = new THREE.Vector3(
+                    Math.random() * 600 - 300,
+                    Math.random() * 600 - 300,
+                    Math.random() * 600 - 300
+                );
+                points.push(star);
+            }
+            starGeo.setFromPoints(points);
+
+            let starMaterial = new THREE.PointsMaterial({
+                color: 0xb36b3f,
+                size: 0.85,
+                transparent: true,
+                opacity: 0.45
+            });
+
+            stars = new THREE.Points(starGeo, starMaterial);
+            scene.add(stars);
+
+            animateThree();
+        }
+
+        function animateThree() {
+            let positions = starGeo.attributes.position.array;
+            for (let i = 1; i < positions.length; i += 3) {
+                positions[i] -= 0.4; 
+                if (positions[i] < -300) positions[i] = 300;
+            }
+            starGeo.attributes.position.needsUpdate = true;
+            stars.rotation.y += 0.0012;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animateThree);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        initThree();
+
+        // Control Navbar y Canvas
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar-container');
+            const navWrapper = document.getElementById('navbar');
+            const scroll = window.scrollY;
+            const heroHeight = document.getElementById('inicio').offsetHeight;
+
+            if (scroll > heroHeight / 3) {
+                canvas.style.opacity = "1";
+            } else {
+                canvas.style.opacity = "0";
+            }
+
+            if (scroll > 100) {
+                nav.style.padding = "0.3rem 1rem";
+                nav.style.background = "rgba(0,0,0,0.85)";
+                navWrapper.style.padding = "1rem 0";
+            } else {
+                nav.style.padding = "0.5rem 1.5rem";
+                nav.style.background = "rgba(255,255,255,0.03)";
+                navWrapper.style.padding = "1.5rem 0";
+            }
+        });
+
+        // Mobile Menu
+        const mobileMenu = document.getElementById('mobileMenu');
+        const openBtn = document.getElementById('mobileMenuOpen');
+        const closeBtn = document.getElementById('mobileMenuClose');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        openBtn.addEventListener('click', () => mobileMenu.classList.remove('translate-x-full'));
+        closeBtn.addEventListener('click', () => mobileMenu.classList.add('translate-x-full'));
+        mobileLinks.forEach(l => l.addEventListener('click', () => mobileMenu.classList.add('translate-x-full')));
+    </script>
+    <script>
+        // Inicializar Iconos
+        lucide.createIcons();
+
+        // Lógica del Carrusel con Barra de Progreso
+        const track = document.getElementById('carouselTrack');
+        const slides = document.querySelectorAll('.carousel-slide');
+        const progressBar = document.getElementById('progressBar');
+        let currentIndex = 0;
+        const intervalTime = 6000; // 6 segundos
+        let startTime = Date.now();
+
+        function updateCarousel() {
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            startTime = Date.now(); // Resetear tiempo para la barra
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % slides.length;
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+            updateCarousel();
+        }
+
+        // Animación fluida de la barra de progreso
+        function animateProgress() {
+            const elapsed = Date.now() - startTime;
+            const progress = (elapsed / intervalTime) * 100;
+            progressBar.style.width = Math.min(progress, 100) + '%';
+            
+            if (elapsed >= intervalTime) {
+                nextSlide();
+            }
+            requestAnimationFrame(animateProgress);
+        }
+
+        animateProgress();
+    </script>
+</body>
+</html>
+
+
+
