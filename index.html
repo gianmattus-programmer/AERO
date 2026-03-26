@@ -9,7 +9,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    
+    <link rel="icon" type="image/png" href="images/favicon.png">
+        <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        crewMetal: '#2A2A2A', /* Tono metálico oscuro */
+                        crewCopper: '#C16A34', /* Tono cálido cobrizo */
+                        crewLight: '#F8F9FA',
+                        waGreen: '#25D366'
+                    },
+                    boxShadow: {
+                        'premium': '0 25px 50px -12px rgba(42, 42, 42, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         :root {
             --bronze: #b36b3f;
@@ -61,7 +78,7 @@
 
         /* Hero Ken Burns Effect */
         .hero-bg {
-            background-image: url('sala.jpeg');
+            background-image: url('images/sala.jpeg');
             background-size: cover;
             background-position: center;
             animation: kenBurns 25s infinite alternate;
@@ -182,7 +199,8 @@
         .carousel-container {
             position: relative;
             width: 100%;
-            height: 65vh;
+            /* Reemplazamos height: 65vh por aspect-ratio */
+            aspect-ratio: 21 / 9; 
             overflow: hidden;
             border-radius: 3rem 3rem 0 0;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -205,12 +223,24 @@
             height: 100%;
             object-fit: cover;
             filter: brightness(0.6) contrast(1.1);
+            cursor: pointer; /* Fuerza el cursor de mano */
+            pointer-events: auto; /* Asegura que detecte el clic */
+        }
+        .carousel-slide img {
+            position: relative;
+            z-index: 30; /* Esto la pone por encima del overlay para que reciba el clic */
+        }
+
+        /* Y para que el texto no quede tapado por la imagen: */
+        .carousel-slide div.absolute {
+            z-index: 40; 
         }
 
         .carousel-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to bottom, transparent 40%, var(--space-black) 100%);
+            /* Ajusté el degradado al 20% para que no tape tanto la imagen en formato ancho */
+            background: linear-gradient(to bottom, transparent 20%, var(--space-black) 100%);
         }
 
         /* Progress Indicator */
@@ -276,8 +306,68 @@
         }
 
         @media (max-width: 768px) {
-            .carousel-container { height: 45vh; }
+            .carousel-container {
+                aspect-ratio: 16 / 9; /* Un poco más alto para que se vean bien las fotos en el celular */
+            }
             .map-section { padding: 2rem 1rem; }
+        }
+
+        /* Animaciones refinadas */
+        @keyframes fadeSlideUp {
+            0% { transform: translateY(30px) scale(0.95); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-premium-enter {
+            animation: fadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        /* Custom scrollbar para opciones */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #C16A34; 
+        }
+        /* --- IMAGEN FUERA --- */
+        #lightbox {
+            backdrop-filter: blur(8px);
+            transition: opacity 0.3s ease;
+        }
+
+        #lightbox img {
+            animation: zoomIn 0.3s ease-out;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        #prevBtn, #nextBtn {
+            background: none;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Efecto de escala al pulsar las flechas */
+        #prevBtn:active, #nextBtn:active {
+            transform: scale(0.9);
         }
     </style>
 </head>
@@ -291,10 +381,10 @@
         <div class="container mx-auto px-6 flex justify-center">
             <div id="navbar-container" class="flex items-center gap-8 md:gap-12 nav-capsule">
                 <a href="#inicio" class="flex-shrink-0">
-                    <img src="crewlogo.png" alt="Crew College" class="h-8 md:h-10 hover:scale-105 transition-transform">
+                    <img src="images/crewlogo.png" alt="Crew College" class="h-8 md:h-10 hover:scale-105 transition-transform">
                 </a>
                 
-                <div class="hidden md:flex items-center space-x-8 text-[9px] font-bold tracking-[0.3em] uppercase">
+                <div class="hidden md:flex items-center space-x-8 text-[10px] font-bold tracking-[0.3em] uppercase">
                     <a href="#nosotros" class="hover:text-bronze transition">Identidad</a>
                     <a href="#programas" class="hover:text-bronze transition">Programas</a>
                     <a href="#malla" class="hover:text-bronze transition">Malla</a>
@@ -312,17 +402,48 @@
     </nav>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-3xl flex flex-col p-12 lg:hidden translate-x-full transition-transform duration-500">
-        <div class="flex justify-between items-center mb-16">
-            <img src="crewlogo.png" alt="Logo" class="h-10 brightness-200">
-            <button id="mobileMenuClose"><i data-lucide="x" class="w-10 h-10 text-bronze"></i></button>
+    <div id="mobileMenu" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-3xl flex flex-col pt-4 pb-12 px-12 lg:hidden translate-x-full transition-transform duration-500 overflow-y-auto">
+        
+        <div class="flex justify-end mb-4">
+            <button id="mobileMenuClose" class="p-2 -mr-2"><i data-lucide="x" class="w-10 h-10 text-bronze"></i></button>
         </div>
-        <div class="flex flex-col space-y-8 text-2xl font-black uppercase tracking-tighter text-center">
-            <a href="#inicio" class="mobile-link">Home</a>
-            <a href="#nosotros" class="mobile-link">Identidad</a>
-            <a href="#programas" class="mobile-link">Programas</a>
-            <a href="#malla" class="mobile-link">Malla</a>
-            <a href="#contacto" class="text-bronze mobile-link">Contacto</a>
+        <div class="flex flex-col items-center flex-grow justify-start mt-4">
+            
+            <img src="images/crewlogo.png" alt="Logo" class="h-28 mb-10 brightness-200">
+            <div class="flex flex-col space-y-6 text-2xl font-black uppercase tracking-tighter text-center mb-10">
+                <a href="#inicio" class="mobile-link">Inicio</a>
+                <a href="#nosotros" class="mobile-link">Identidad</a>
+                <a href="#programas" class="mobile-link">Programas</a>
+                <a href="#malla" class="mobile-link">Malla</a>
+                <a href="#contacto" class="text-bronze mobile-link">Contacto</a>
+            </div>
+            <div class="flex flex-col items-center w-full">
+                <div class="flex gap-4">
+                    <a href="https://www.facebook.com/share/1Ay1tAGTMg/" target="_blank" 
+                    class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-bronze transition-all duration-300 group">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white" 
+                            class="transition-transform duration-300 group-hover:scale-110">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.instagram.com/crew.college" target="_blank" 
+                    class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-bronze transition-all duration-300 group">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="transition-transform duration-300 group-hover:scale-110">
+                            <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                        </svg>
+                    </a>
+                    <a href="https://www.tiktok.com/@crew.college" target="_blank" 
+                    class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-bronze transition-all duration-300 group">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+                            class="transition-transform duration-300 group-hover:scale-110">
+                            <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -342,7 +463,7 @@
                     ELEVAMOS TU <br>
                     <span class="text-gradient italic">IDENTIDAD PROFESIONAL</span>
                 </h1>
-                <p class="text-[10px] md:text-xs font-bold tracking-[0.5em] uppercase text-white/80 mb-12 max-w-3xl mx-auto leading-relaxed">
+                <p class="text-[10px] md:text-xs font-bold tracking-[0.5em] uppercase text-white mb-12 max-w-3xl mx-auto leading-relaxed">
                     “Especialistas en formar y entrenar a futuros tripulantes de cabina”
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center items-center gap-6">
@@ -366,44 +487,44 @@
                     <h3 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-8 leading-tight uppercase tracking-tighter">
                         Donde la técnica se <br> integra con la <span class="italic text-bronze-light text-gradient">pasión.</span>
                     </h3>
-                    <p class="text-base text-white/50 mb-10 leading-relaxed font-light">
+                    <p class="text-base text-white mb-10 leading-relaxed font-light">
                         Crew College nace para quienes buscan una experiencia formativa real. CREW representa el trabajo en equipo, liderazgo compartido y confianza mutua. Forjamos el criterio y la actitud necesaria para entornos reales.
                     </p>
                     
                     <div class="grid sm:grid-cols-2 gap-6">
                         <div class="glass-panel p-8 rounded-[2rem] border-l-4 border-l-bronze">
-                            <h4 class="font-black text-[10px] uppercase tracking-[0.3em] mb-3 text-bronze">Propósito</h4>
-                            <p class="text-[11px] text-white/50 leading-relaxed">Formar personas con mentalidad, criterio y presencia profesional para destacar en la aviación.</p>
+                            <h4 class="font-black text-[12px] uppercase tracking-[0.3em] mb-3 text-bronze">Propósito</h4>
+                            <p class="text-[11px] text-white/90 leading-relaxed">Formar personas con mentalidad, criterio y presencia profesional para destacar en la aviación.</p>
                         </div>
                         <div class="glass-panel p-8 rounded-[2rem] border-l-4 border-l-bronze">
-                            <h4 class="font-black text-[10px] uppercase tracking-[0.3em] mb-3 text-bronze">Visión</h4>
-                            <p class="text-[11px] text-white/50 leading-relaxed">Ser el punto de partida de quienes no solo buscan encajar en la industria, sino elevarla.</p>
+                            <h4 class="font-black text-[12px] uppercase tracking-[0.3em] mb-3 text-bronze">Visión</h4>
+                            <p class="text-[11px] text-white/90 leading-relaxed">Ser el punto de partida de quienes no solo buscan encajar en la industria, sino elevarla.</p>
                         </div>
                     </div>
                     
                     <div class="mt-12 flex flex-wrap gap-4">
-                        <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/10 px-4 py-2 rounded-full italic"><i data-lucide="shield-check" class="w-4 h-4 text-bronze"></i> Disciplina</div>
-                        <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/10 px-4 py-2 rounded-full italic"><i data-lucide="zap" class="w-4 h-4 text-bronze"></i> Compromiso</div>
-                        <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/10 px-4 py-2 rounded-full italic"><i data-lucide="users" class="w-4 h-4 text-bronze"></i> Trabajo en Equipo</div>
+                        <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/80 border border-white/20 px-4 py-2 rounded-full italic"><i data-lucide="shield-check" class="w-4 h-4 text-bronze"></i> Disciplina</div>
+                        <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/80 border border-white/20 px-4 py-2 rounded-full italic"><i data-lucide="zap" class="w-4 h-4 text-bronze"></i> Compromiso</div>
+                        <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/80 border border-white/20 px-4 py-2 rounded-full italic"><i data-lucide="users" class="w-4 h-4 text-bronze"></i> Trabajo en Equipo</div>
                     </div>
                 </div>
                 
                 <div class="relative" data-aos="zoom-in">
                     <div class="glass-panel p-10 md:p-16 rounded-[4rem] border-bronze/20 shadow-2xl relative overflow-hidden">
                         <div class="absolute -top-32 -right-32 w-80 h-80 bg-bronze/10 rounded-full blur-[100px]"></div>
-                        <h4 class="text-bronze font-black text-xs uppercase mb-10 italic tracking-[0.4em]">Visual Identity</h4>
+                        <h4 class="text-bronze font-black text-s uppercase mb-10 italic tracking-[0.4em]">Visual Identity</h4>
                         <div class="space-y-10 relative z-10">
                             <div class="flex items-start gap-8">
                                 <div class="w-12 h-12 rounded-2xl bg-bronze/10 flex items-center justify-center shrink-0 border border-bronze/20 italic font-black text-bronze">A</div>
-                                <div><p class="text-[11px] font-black uppercase tracking-widest mb-1">Aeronave en Ascenso</p><p class="text-[10px] text-white/30 uppercase leading-relaxed">Metas alcanzadas y evolución constante en el proceso formativo.</p></div>
+                                <div><p class="text-[13px] font-black uppercase tracking-widest mb-1">Aeronave en Ascenso</p><p class="text-[10px] text-white/80 uppercase leading-relaxed">Metas alcanzadas y evolución constante en el proceso formativo.</p></div>
                             </div>
                             <div class="flex items-start gap-8">
                                 <div class="w-12 h-12 rounded-2xl bg-bronze/10 flex items-center justify-center shrink-0 border border-bronze/20 italic font-black text-bronze">L</div>
-                                <div><p class="text-[11px] font-black uppercase tracking-widest mb-1">Líneas Curvas</p><p class="text-[10px] text-white/30 uppercase leading-relaxed">Trayectoria, guía y acompañamiento personalizado.</p></div>
+                                <div><p class="text-[13px] font-black uppercase tracking-widest mb-1">Líneas Curvas</p><p class="text-[10px] text-white/80 uppercase leading-relaxed">Trayectoria, guía y acompañamiento personalizado.</p></div>
                             </div>
                             <div class="flex items-start gap-8">
                                 <div class="w-12 h-12 rounded-2xl bg-bronze/10 flex items-center justify-center shrink-0 border border-bronze/20 italic font-black text-bronze">C</div>
-                                <div><p class="text-[11px] font-black uppercase tracking-widest mb-1">Cercanía Humana</p><p class="text-[10px] text-white/30 uppercase leading-relaxed">Equilibrio perfecto entre tecnología y profesionalismo humano.</p></div>
+                                <div><p class="text-[13px] font-black uppercase tracking-widest mb-1">Cercanía Humana</p><p class="text-[10px] text-white/80 uppercase leading-relaxed">Equilibrio perfecto entre tecnología y profesionalismo humano.</p></div>
                             </div>
                         </div>
                     </div>
@@ -563,7 +684,7 @@
                     <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#CC5500] group-hover:text-white text-slate-400">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="10" x="2" y="10" rx="2"/><path d="M22 14a2 2 0 0 0-2-2h-2"/><rect width="4" height="4" x="6" y="13" rx="1"/><path d="M14 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4"/></svg>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Airbus FAM320 / B737</span>
+                    <span class="text-[10px] font-bold uppercase tracking-tight transition-colors group-hover:text-[#CC5500]">Airbus FAM320 / BOEING 737</span>
                 </div>
 
                 <div class="malla-item p-4 border border-slate-200 rounded-xl flex items-center gap-3 transition-all duration-300 group hover:border-[#CC5500] hover:shadow-lg hover:shadow-orange-900/5 cursor-default">
@@ -627,19 +748,19 @@
                     <h4 class="text-2xl font-black mb-8 uppercase italic border-b-2 border-bronze pb-4 inline-block">Admisión</h4>
                     <div class="space-y-6">
                         <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-bronze mb-2">Requisitos de Matrícula</p>
-                            <ul class="text-xs space-y-2 text-white/60">
+                            <p class="text-[13px] font-black uppercase tracking-widest text-bronze mb-2">Requisitos de Matrícula</p>
+                            <ul class="text-xs space-y-2 text-white/80">
                                 <li>• Copia de DNI o Carnet de Extranjería.</li>
                                 <li>• Edad: Desde los 16 años en adelante.</li>
                                 <li>• Modalidad 100% Presencial.</li>
                             </ul>
                         </div>
                         <div class="pt-6 border-t border-white/10">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-bronze mb-4">Inversión (Pagos)</p>
+                            <p class="text-[13px] font-black uppercase tracking-widest text-bronze mb-4">Inversión (Pagos)</p>
                             <div class="grid grid-cols-3 gap-4 text-center">
-                                <div class="p-3 bg-white/5 rounded-xl"><p class="text-[8px] uppercase font-bold text-white/40">Matrícula</p><p class="text-[9px] font-black">Único</p></div>
-                                <div class="p-3 bg-white/5 rounded-xl"><p class="text-[8px] uppercase font-bold text-white/40">Mensualidad</p><p class="text-[9px] font-black">Cuota</p></div>
-                                <div class="p-3 bg-white/5 rounded-xl"><p class="text-[8px] uppercase font-bold text-white/40">Seguro</p><p class="text-[9px] font-black">Accidental</p></div>
+                                <div class="p-3 bg-white/5 rounded-xl"><p class="text-[10px] uppercase font-bold text-white/80">Matrícula</p><p class="text-[9px] font-black">Único</p></div>
+                                <div class="p-3 bg-white/5 rounded-xl"><p class="text-[10px] uppercase font-bold text-white/80">Mensualidad</p><p class="text-[9px] font-black">Cuota</p></div>
+                                <div class="p-3 bg-white/5 rounded-xl"><p class="text-[10px] uppercase font-bold text-white/80">Seguro</p><p class="text-[9px] font-black">Accidental</p></div>
                             </div>
                         </div>
                     </div>
@@ -657,7 +778,7 @@
             <div class="carousel-track" id="carouselTrack">
                 <!-- Slide 1: Fachada / Recepción -->
                 <div class="carousel-slide">
-                    <img src="sala.jpeg" alt="Sede Miraflores">
+                    <img src="images/sala.png" alt="Sede Miraflores">
                     <div class="carousel-overlay"></div>
                     <div class="absolute bottom-12 left-12 z-20">
                         <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Sede Miraflores</p>
@@ -666,20 +787,172 @@
                 </div>
                 <!-- Slide 2: Aulas -->
                 <div class="carousel-slide">
-                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1600" alt="Aulas Crew College">
+                    <img src="images/aulasespecializadas.png" alt="Aulas Crew College">
                     <div class="carousel-overlay"></div>
                     <div class="absolute bottom-12 left-12 z-20">
                         <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Entrenamiento</p>
                         <h3 class="text-3xl font-black uppercase italic tracking-tighter">Aulas Especializadas</h3>
                     </div>
                 </div>
-                <!-- Slide 3: Prácticas -->
                 <div class="carousel-slide">
-                    <img src="mantenimiento-aeronautico.jpg" alt="Simuladores">
+                    <img src="images/Actuación Humana.jpeg" alt="Eventos Crew College">
                     <div class="carousel-overlay"></div>
                     <div class="absolute bottom-12 left-12 z-20">
-                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Experiencia Real</p>
-                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Entorno Aeronáutico</h3>
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Factores Críticos</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Gestión del Rendimiento</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Aerodinámica.jpeg" alt="Graduación Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Ciencia del Vuelo</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Principios de Sustentación</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Airbus FAM320  BOEING 737.jpeg" alt="Simuladores Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Tecnología de Vanguardia</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Simuladores de Vuelo</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Autoridad del Piloto.jpeg" alt="Prácticas de Emergencia Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Integral</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Prácticas de Emergencia</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/AVSEC - Interferencia (Seguridad de la Aviación).jpeg" alt="Networking Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Red Profesional</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Networking y Comunidad</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Comunicación Aerocomercial.png" alt="Instalaciones Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Comunicación Aerocomercial</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Derecho Aeronáutico.jpeg" alt="Graduados Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Derecho Aeronáutico</h3>
+                    </div>
+                </div>
+
+                <div class="carousel-slide">
+                    <img src="images/Equipos Emergencia & Fuego.jpeg" alt="Equipos Emergencia Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Equipos Emergencia & Fuego</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Factores Humanos  SMS (Safety Management Systems).jpeg" alt="Factores Humanos Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Factores Humanos (SMS)</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/HistoriadelaAviación.jpeg" alt="Historia Aviación Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Historia de la Aviación</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/instruccionesdeseguridad.png" alt="Instrucciones Seguridad Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Instrucciones de Seguridad</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/mantenimiento-aeronautico.png" alt="Mantenimiento Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Mantenimiento Aeronáutico</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Marca Personal & Coaching.jpeg" alt="Marca Personal Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Marca Personal & Coaching</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Medicina Aeroespacial.jpeg" alt="Medicina Aeroespacial Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Medicina Aeroespacial</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Mercancías Peligrosas.jpeg" alt="Mercancías Peligrosas Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Mercancías Peligrosas</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Meteorología Básica.jpeg" alt="Meteorología Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Meteorología Básica</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Primeros Auxilios.jpeg" alt="Primeros Auxilios Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Primeros Auxilios</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Reglamentos del Aire.jpeg" alt="Reglamentos Aire Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Reglamentos del Aire</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Servicio a Bordo & Protocolo.jpeg" alt="Servicio a Bordo Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Servicio a Bordo & Protocolo</h3>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="images/Supervivencia.png" alt="Supervivencia Crew College">
+                    <div class="carousel-overlay"></div>
+                    <div class="absolute bottom-12 left-12 z-20">
+                        <p class="text-bronze font-black text-[10px] uppercase tracking-widest mb-2">Formación Aeronáutica</p>
+                        <h3 class="text-3xl font-black uppercase italic tracking-tighter">Supervivencia</h3>
                     </div>
                 </div>
             </div>
@@ -701,6 +974,16 @@
             </div>
         </div>
 
+        <div id="lightbox" class="fixed inset-0 z-[100] hidden bg-black/95 flex items-center justify-center p-4">
+            <span id="closeLightbox" class="absolute top-6 right-8 text-white text-4xl font-thin cursor-pointer z-[110]">&times;</span>
+            
+            <button id="prevBtn" class="absolute left-4 md:left-8 text-white text-5xl hover:text-bronze transition-colors z-[110] p-4">‹</button>
+            
+            <img id="lightboxImg" src="" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain">
+            
+            <button id="nextBtn" class="absolute right-4 md:right-8 text-white text-5xl hover:text-bronze transition-colors z-[110] p-4">›</button>
+        </div>
+
         <!-- Sección Mapa Google Maps Interactivos -->
         <div class="map-section">
             <div class="grid lg:grid-cols-5 gap-8 items-stretch">
@@ -717,8 +1000,8 @@
                                 <div>
                                     <p class="text-[9px] font-black uppercase text-white/30 tracking-widest mb-1">Dirección Exacta</p>
                                     <p class="text-xs font-bold leading-relaxed">
-                                        Av. Alfredo Benavides 2315, <br>
-                                        Frente al Colegio Juana Alarco de Dammert. <br>
+                                        Av. José Ramírez Gastón N°213, <br>
+                                        Frente al Colegio Juana Alarco de Danmert. <br>
                                         Miraflores, Lima - Perú.
                                     </p>
                                 </div>
@@ -729,7 +1012,7 @@
                                     <i data-lucide="navigation-2" class="text-bronze w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <p class="text-[9px] font-black uppercase text-white/30 tracking-widest mb-1">Referencia Hub</p>
+                                    <p class="text-[9px] font-black uppercase text-white/30 tracking-widest mb-1">Referencia Central</p>
                                     <p class="text-xs font-bold leading-relaxed">Zona de fácil acceso • Cercano al Ovalo Higuereta</p>
                                 </div>
                             </div>
@@ -745,7 +1028,7 @@
                 <div class="lg:col-span-3 min-h-[450px] relative">
                     <iframe 
                         class="google-map-iframe w-full h-full shadow-2xl"
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3900.754763428163!2d-77.0145!3d-12.1293!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c802611e4f45%3A0xc66511a030060000!2sAv.%20Alfredo%20Benavides%202315%2C%20Miraflores%2015048!5e0!3m2!1ses!2spe!4v1716580000000!5m2!1ses!2spe" 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3900.7890071812985!2d-77.0122415243381!3d-12.126584043393274!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c7ffcd61d25d%3A0xfc35b1563298b0f3!2sAv.%20Jos%C3%A9%20Ram%C3%ADrez%20Gast%C3%B3n%20213%2C%20Lima%2015048!5e0!3m2!1ses-419!2spe!4v1774535704668!5m2!1ses-419!2spe" 
                         style="border:0;" 
                         allowfullscreen="" 
                         loading="lazy" 
@@ -811,7 +1094,7 @@
             <div class="mb-24 flex flex-col lg:flex-row justify-between items-center gap-8 lg:gap-12" data-aos="fade-up">
                 <div class="max-w-xl text-center lg:text-left">
                     <h4 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter mb-4">¡Prepárate para este <span class="text-bronze">nuevo viaje!</span></h4>
-                    <p class="text-white/40 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">Envíanos tus datos para agendar una cita de admisión personalizada.</p>
+                    <p class="text-white/80 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">Envíanos tus datos para agendar una cita de admisión personalizada.</p>
                 </div>
                 <div class="w-full lg:w-auto">
                     <form class="flex flex-col sm:flex-row gap-3 sm:gap-4">
@@ -825,8 +1108,8 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 lg:gap-16 mb-24">
                 <!-- Branding -->
                 <div class="col-span-1 sm:col-span-2 lg:col-span-1">
-                    <img src="crewlogo.png" alt="Crew Logo" class="h-12 sm:h-16 mb-6 sm:mb-8 brightness-200">
-                    <p class="text-white/40 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8 max-w-xs">
+                    <img src="images/crewlogo.png" alt="Crew Logo" class="h-32 sm:h-48 mb-6 sm:mb-8 brightness-200">
+                    <p class="text-white/80 text-xs sm:text-sm leading-relaxed mb-6 sm:mb-8 max-w-xs">
                         Especialistas en formar y entrenar a futuros tripulantes de cabina con excelencia y mentalidad profesional.
                     </p>
                     <div class="flex gap-4">
@@ -847,13 +1130,21 @@
                                 <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
                             </svg>
                         </a>
+
+                        <a href="https://www.tiktok.com/@crew.college" target="_blank" 
+                        class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center hover:bg-bronze transition-all duration-300 group hover:-translate-y-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+                                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+                            </svg>
+                        </a>                  
                     </div>
                 </div>
 
                 <!-- Navigation -->
                 <div>
                     <h5 class="font-black text-xs uppercase tracking-[0.4em] text-bronze mb-6 sm:mb-8">Navegación</h5>
-                    <ul class="space-y-3 sm:space-y-4 text-xs font-bold uppercase tracking-widest text-white/60">
+                    <ul class="space-y-3 sm:space-y-4 text-xs font-bold uppercase tracking-widest text-white/80">
                         <li>
                             <a href="#inicio" class="transition-colors duration-300 hover:text-[#CC5500]">Inicio</a>
                         </li>
@@ -873,7 +1164,7 @@
                 <div>
                     <h5 class="font-black text-xs uppercase tracking-[0.4em] text-bronze mb-6 sm:mb-8">Base Miraflores</h5>
                     <ul class="space-y-4 sm:space-y-6 text-xs font-bold uppercase tracking-widest">
-                        <li class="flex items-start gap-4 text-white/70 hover:text-[#CC5500] transition-colors duration-300 group">
+                        <li class="flex items-start gap-4 text-white/80 hover:text-[#CC5500] transition-colors duration-300 group">
                             <div class="flex-shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
@@ -921,16 +1212,128 @@
         </div>
     </footer>
 
-    <!-- WhatsApp Pulse Button -->
-    <a href="https://wa.me/51966113956" target="_blank" class="fixed bottom-8 right-8 z-[150] group">
-        <div class="absolute inset-0 bg-[#25D366] rounded-full animate-ping opacity-25"></div>
+    <!-- BOTÓN FLOTANTE PREMIUM                     -->
+    <div class="fixed bottom-8 right-8 z-[150] flex items-center justify-end gap-4 group">
+        <!-- Etiqueta lateral (Aparece en hover en desktop) -->
+        <span class="hidden md:block opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 bg-white text-crewMetal font-semibold text-sm py-2 px-4 rounded-lg shadow-lg border border-gray-100">
+            Dpto. de Admisiones
+        </span>
         
-        <div class="relative bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.432 5.628 1.433h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-            </svg>
+        <button onclick="toggleModal()" class="relative border-none bg-transparent cursor-pointer p-0 outline-none focus:outline-none">
+            <!-- Sombra exterior pulsante sutil -->
+            <div class="absolute inset-0 bg-waGreen rounded-full animate-ping opacity-20 duration-1000"></div>
+            <!-- Botón principal -->
+            <div class="relative bg-waGreen text-white p-4 rounded-full shadow-xl hover:shadow-premium hover:scale-105 transition-all duration-300 flex items-center justify-center border-2 border-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.432 5.628 1.433h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+            </div>
+        </button>
+    </div>
+
+    <!-- MODAL CORPORATIVO                          -->
+    <!-- Overlay oscurecido con desenfoque premium -->
+    <div id="waOverlay" onclick="toggleModal()" class="fixed inset-0 z-[160] bg-crewMetal/60 backdrop-blur-sm hidden animate-fade-in"></div>
+
+    <!-- Contenedor del Modal -->
+    <div id="waModal" class="fixed bottom-0 sm:bottom-28 right-0 sm:right-8 z-[170] w-full sm:w-[400px] hidden">
+        <div class="bg-white sm:rounded-2xl shadow-premium overflow-hidden animate-premium-enter border-t-4 border-crewCopper flex flex-col max-h-[85vh]">
+            
+            <!-- Cabecera Corporativa -->
+            <div class="bg-crewMetal p-5 flex items-start justify-between relative">
+                <div class="absolute right-0 top-0 opacity-5 pointer-events-none">
+                    <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor" class="text-white"><path d="M22 16l-8.5-5.5V3.5C13.5 2.67 12.83 2 12 2s-1.5.67-1.5 1.5v7L2 16v2l8.5-2.5V20l-2 1.5V23l3.5-1 3.5 1v-1.5L13.5 20v-4.5L22 18v-2z"/></svg>
+                </div>
+                
+                <div class="flex items-center gap-4 relative z-10">
+                    <div class="relative">
+                        <div class="w-12 h-12 bg-gray-800 rounded-full overflow-hidden border-2 border-crewCopper shadow-md">
+                            <img src="images/crew.jpg" alt="Asesor Crew College" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-waGreen border-2 border-crewMetal rounded-full"></div>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-base tracking-wide">Admisiones <span class="text-crewCopper">Crew College</span></h3>
+                        <p class="text-gray-400 text-xs font-medium mt-0.5">Asesor Educativo Especializado</p>
+                    </div>
+                </div>
+                <button onclick="toggleModal()" class="text-gray-400 hover:text-white transition-colors relative z-10 mt-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Área de Mensajes (Cuerpo) -->
+            <div class="p-5 bg-crewLight flex-1 overflow-y-auto custom-scrollbar">
+                
+                <!-- Burbuja de mensaje de bienvenida oficial -->
+                <div class="flex flex-col gap-1 mb-6">
+                    <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider ml-1">Crew College • Ahora</span>
+                    <div class="bg-white p-4 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 text-gray-700 text-sm leading-relaxed relative">
+                        Estimado futuro tripulante, le damos la bienvenida al canal oficial de <strong>Crew College</strong>.<br><br>
+                        Para brindarle una atención precisa, por favor seleccione el área de su interés:
+                    </div>
+                </div>
+                
+                <!-- Opciones de contacto corporativas -->
+                <div class="space-y-3">
+                    
+                    <!-- Opción 1 -->
+                    <button onclick="sendWhatsApp('Estimados Crew College, solicito información detallada sobre la malla curricular y beneficios del Programa de Tripulantes de Cabina.')" 
+                            class="w-full text-left p-4 bg-white rounded-xl border border-gray-200 hover:border-crewCopper hover:shadow-md transition-all duration-300 flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <div class="text-crewMetal group-hover:text-crewCopper transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            </div>
+                            <span class="text-crewMetal font-semibold text-sm group-hover:text-crewCopper transition-colors">Información del Programa (DGAC)</span>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-crewCopper transition-colors translate-x-0 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+
+                    <!-- Opción 2 -->
+                    <button onclick="sendWhatsApp('Estimados Crew College, deseo conocer las fechas de inicio para las modalidades de 6 meses (interdiario) y 8 meses (sabatinos).')" 
+                            class="w-full text-left p-4 bg-white rounded-xl border border-gray-200 hover:border-crewCopper hover:shadow-md transition-all duration-300 flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <div class="text-crewMetal group-hover:text-crewCopper transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <span class="text-crewMetal font-semibold text-sm group-hover:text-crewCopper transition-colors">Modalidades y Horarios</span>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-crewCopper transition-colors translate-x-0 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+
+                    <!-- Opción 3 -->
+                    <button onclick="sendWhatsApp('Estimados Crew College, requiero información sobre los costos de matrícula, inversión mensual y requisitos (DNI/Extranjería).')" 
+                            class="w-full text-left p-4 bg-white rounded-xl border border-gray-200 hover:border-crewCopper hover:shadow-md transition-all duration-300 flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <div class="text-crewMetal group-hover:text-crewCopper transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <span class="text-crewMetal font-semibold text-sm group-hover:text-crewCopper transition-colors">Inversión y Requisitos</span>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-crewCopper transition-colors translate-x-0 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                    
+                    <!-- Opción 4 -->
+                    <button onclick="sendWhatsApp('Estimados Crew College, me gustaría agendar una cita presencial o resolver una consulta específica.')" 
+                            class="w-full text-left p-4 bg-white rounded-xl border border-gray-200 hover:border-crewCopper hover:shadow-md transition-all duration-300 flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <div class="text-crewMetal group-hover:text-crewCopper transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            </div>
+                            <span class="text-crewMetal font-semibold text-sm group-hover:text-crewCopper transition-colors">Consulta Específica / Cita</span>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-crewCopper transition-colors translate-x-0 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Pie de página de confianza corporativa -->
+            <div class="bg-white border-t border-gray-100 p-3.5 flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <p class="text-[11px] text-gray-500 font-medium uppercase tracking-wider">Atención Segura y Personalizada</p>
+            </div>
         </div>
-    </a>
+    </div>
 
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -1100,8 +1503,98 @@
 
         animateProgress();
     </script>
+    
+    <!-- SCRIPTS WHASTSAPP -->
+    <script>
+        function toggleModal() {
+            const modal = document.getElementById('waModal');
+            const overlay = document.getElementById('waOverlay');
+            
+            if (modal.classList.contains('hidden')) {
+                // Abrir
+                modal.classList.remove('hidden');
+                overlay.classList.remove('hidden');
+            } else {
+                // Cerrar
+                modal.classList.add('hidden');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function sendWhatsApp(message) {
+            // Número oficial de Crew College
+            const phoneNumber = '51966113956';
+            
+            // Construye la URL de la API de WhatsApp
+            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            
+            // Abre en una nueva pestaña
+            window.open(url, '_blank');
+            
+            // Cierra el modal
+            toggleModal();
+        }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const images = Array.from(document.querySelectorAll('.carousel-slide img'));
+        let currentIndex = 0;
+
+        // Función para actualizar la imagen en el modal
+        const updateLightbox = (index) => {
+            currentIndex = index;
+            lightboxImg.src = images[currentIndex].src;
+        };
+
+        // Abrir Lightbox
+        images.forEach((img, index) => {
+            img.style.cursor = 'zoom-in';
+            img.addEventListener('click', (e) => {
+                e.stopPropagation(); // Evita conflictos con el carrusel
+                updateLightbox(index);
+                lightbox.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        // Navegación: Siguiente
+        document.getElementById('nextBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            let next = (currentIndex + 1) % images.length;
+            updateLightbox(next);
+        });
+
+        // Navegación: Anterior
+        document.getElementById('prevBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            let prev = (currentIndex - 1 + images.length) % images.length;
+            updateLightbox(prev);
+        });
+
+        // Cerrar al hacer clic en la X o en el fondo (pero no en la imagen/flechas)
+        lightbox.addEventListener('click', (e) => {
+            if (e.target !== lightboxImg && e.target.tagName !== 'BUTTON') {
+                lightbox.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Navegación con teclado
+        document.addEventListener('keydown', (e) => {
+            if (lightbox.classList.contains('hidden')) return;
+            
+            if (e.key === "ArrowRight") document.getElementById('nextBtn').click();
+            if (e.key === "ArrowLeft") document.getElementById('prevBtn').click();
+            if (e.key === "Escape") lightbox.click();
+        });
+    });
+    </script>
 </body>
 </html>
+
+
 
 
 
